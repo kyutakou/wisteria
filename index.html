@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wisteria — 12-STEM WISE</title>
+<!-- BUILD: v5-split-admin-page -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void: #0d0812;
+    --bg-deep: #160f22;
+    --bg-panel: #1d1430;
+    --bg-panel-2: #241a3a;
+    --purple-royal: #5b2a8c;
+    --purple-bright: #8b4fd6;
+    --purple-glow: #a673e8;
+    --plum: #6e1f3f;
+    --plum-bright: #9c2f57;
+    --bone: #ece3f5;
+    --bone-dim: #c4b3da;
+    --lilac-mute: #8d78ab;
+    --hairline: rgba(166,115,232,0.22);
+    --gold: #c9a96a;
+    --gold-soft: #b89a5c;
+    --shadow-deep: rgba(0,0,0,0.65);
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg-void);
+    color: var(--bone);
+    font-family: 'EB Garamond', serif;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ---------- Ambient background ---------- */
+  .ambient{
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 900px 600px at 15% -5%, rgba(91,42,140,0.35), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 110% 10%, rgba(139,79,214,0.18), transparent 60%),
+      radial-gradient(ellipse 800px 700px at 50% 100%, rgba(110,31,63,0.22), transparent 60%),
+      linear-gradient(180deg, var(--bg-void), var(--bg-deep) 40%, var(--bg-void));
+  }
+  .ambient::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image: radial-gradient(rgba(236,227,245,0.035) 1px, transparent 1px);
+    background-size: 3px 3px;
+    opacity: 0.4;
+  }
+  .vignette{
+    position: fixed; inset:0; z-index: 1; pointer-events:none;
+    background: radial-gradient(ellipse 80% 80% at 50% 40%, transparent 55%, rgba(0,0,0,0.55) 100%);
+  }
+
+  .flicker{
+    position: fixed; inset:0; z-index: 0; pointer-events:none;
+    background: rgba(139,79,214,0.015);
+    animation: flickerAnim 7s infinite ease-in-out;
+  }
+  @keyframes flickerAnim{
+    0%,100%{ opacity: 0.4; }
+    30%{ opacity: 0.9; }
+    45%{ opacity: 0.3; }
+    60%{ opacity: 0.7; }
+    80%{ opacity: 0.5; }
+  }
+
+  main, header, footer, nav { position: relative; z-index: 2; }
+
+  /* ---------- Typography ---------- */
+  h1,h2,h3,h4{
+    font-family: 'Cinzel Decorative', serif;
+    letter-spacing: 0.04em;
+    margin: 0;
+    color: var(--bone);
+    text-shadow: 0 0 18px rgba(139,79,214,0.35);
+  }
+  .display-script{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+  }
+  p{ line-height: 1.7; color: var(--bone-dim); }
+  a{ color: var(--purple-glow); text-decoration: none; }
+
+  .eyebrow{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    color: var(--lilac-mute);
+  }
+
+  /* ---------- Nav ---------- */
+  nav{
+    position: sticky; top:0; z-index: 50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 18px 5vw;
+    background: rgba(13,8,18,0.78);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px;
+    cursor:pointer;
+  }
+  .brand-mark{ width:30px; height:30px; flex-shrink:0; }
+  .brand-text{
+    font-family:'Cinzel Decorative', serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+  }
+  .brand-text .sub{
+    display:block;
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.7rem;
+    color: var(--lilac-mute);
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+  .nav-links{ display:flex; gap: 28px; align-items:center; }
+  .nav-links a{
+    font-family:'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    color: var(--bone-dim);
+    transition: color 0.25s;
+    position: relative;
+  }
+  .nav-links a:hover{ color: var(--purple-glow); }
+  .nav-links a::after{
+    content:''; position:absolute; left:0; bottom:-6px;
+    width:0; height:1px; background: var(--purple-glow);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover::after{ width:100%; }
+  .nav-burger{ display:none; cursor:pointer; color: var(--bone); font-size:1.5rem; background:none; border:none; }
+
+  /* ---------- Ornamental divider ---------- */
+  .ornament{
+    display:flex; align-items:center; justify-content:center; gap: 14px;
+    margin: 14px 0 34px;
+    color: var(--purple-bright);
+    opacity: 0.85;
+  }
+  .ornament .line{ height:1px; width: 70px; background: linear-gradient(90deg, transparent, var(--hairline)); }
+  .ornament .line.right{ background: linear-gradient(90deg, var(--hairline), transparent); }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height: 92vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding: 80px 6vw 60px;
+  }
+  .hero .eyebrow{ margin-bottom: 18px; }
+  .hero h1{
+    font-size: clamp(2.6rem, 7vw, 5.4rem);
+    line-height: 1.05;
+  }
+  .hero h1 .accent{ color: var(--purple-glow); }
+  .hero .motto{
+    margin-top: 22px;
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    color: var(--bone-dim);
+    max-width: 600px;
+  }
+  .hero .section-name{
+    margin-top: 28px;
+    font-family:'Cinzel Decorative', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.22em;
+    color: var(--gold-soft);
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    padding: 12px 28px;
+  }
+  .scroll-cue{
+    margin-top: 56px;
+    width: 18px; height: 30px;
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    position: relative;
+  }
+  .scroll-cue::before{
+    content:''; position:absolute; top:6px; left:50%; transform: translateX(-50%);
+    width:3px; height:6px; border-radius:2px; background: var(--purple-glow);
+    animation: scrollDot 1.8s infinite;
+  }
+  @keyframes scrollDot{
+    0%{ opacity:1; top:6px; }
+    70%{ opacity:0; top:16px; }
+    100%{ opacity:0; top:6px; }
+  }
+
+  /* ---------- Section shell ---------- */
+  section.block{
+    padding: 110px 6vw;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .block-head{ text-align:center; margin-bottom: 56px; }
+  .block-head h2{ font-size: clamp(1.8rem, 4vw, 2.6rem); }
+  .block-head p{ max-width: 560px; margin: 16px auto 0; }
+
+  /* ---------- Cards grid ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 28px;
+  }
+
+  .card{
+    background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 28px;
+    position: relative;
+    transition: transform 0.35s, box-shadow 0.35s, border-color 0.35s;
+  }
+  .card::before{
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, transparent, var(--purple-bright), transparent);
+    opacity:0; transition: opacity 0.35s;
+  }
+  .card:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px var(--shadow-deep);
+    border-color: rgba(166,115,232,0.45);
+  }
+  .card:hover::before{ opacity:1; }
+
+  .person-card{ text-align:center; }
+  .person-photo{
+    width: 130px; height: 130px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: var(--bg-deep);
+    border: 2px solid var(--purple-royal);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+    position:relative;
+    box-shadow: 0 0 0 6px rgba(91,42,140,0.12);
+  }
+  .person-photo img{ width:100%; height:100%; object-fit:cover; }
+  .person-photo .placeholder{
+    font-family:'Cinzel Decorative', serif;
+    font-size: 1.8rem;
+    color: var(--lilac-mute);
+  }
+  .person-name{ font-size: 1.15rem; margin-bottom: 4px; font-family:'Cormorant Garamond', serif; font-weight:600; color: var(--bone); }
+  .person-role{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--gold-soft);
+    font-size: 0.92rem;
+    margin-bottom: 12px;
+  }
+  .person-fact{ font-size: 0.92rem; color: var(--bone-dim); }
+
+  /* ---------- Wall ---------- */
+  .wall-intro{
+    text-align:center; max-width: 620px; margin: 0 auto 40px;
+  }
+  .wall-gate{
+    max-width: 420px; margin: 0 auto 50px;
+    background: var(--bg-panel);
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 28px 30px;
+    text-align:center;
+  }
+  .wall-gate h3{ font-size: 1.15rem; margin-bottom: 14px; }
+  .wall-board{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+    gap: 22px;
+    margin-top: 10px;
+  }
+  .wall-note{
+    background: var(--bg-panel);
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--plum-bright);
+    border-radius: 2px;
+    padding: 20px 22px;
+    position: relative;
+    font-family:'Cormorant Garamond', serif;
+  }
+  .wall-note .msg{ font-size: 1.05rem; color: var(--bone); line-height:1.55; }
+  .wall-note .photo{
+    margin-top: 12px;
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+  }
+  .wall-note .photo img{ width:100%; display:block; max-height: 320px; object-fit: cover; }
+  .wall-note .meta{
+    margin-top: 12px;
+    font-style: italic;
+    font-size: 0.78rem;
+    color: var(--lilac-mute);
+    letter-spacing: 0.04em;
+  }
+  .wall-note .del-btn{
+    position:absolute; top: 10px; right: 10px;
+    background:none; border:none; color: var(--plum-bright);
+    font-family:'EB Garamond', serif; font-size: 0.75rem;
+    cursor:pointer; opacity:0.7; letter-spacing:0.05em;
+  }
+  .wall-note .del-btn:hover{ opacity:1; text-decoration: underline; }
+  .wall-empty{
+    text-align:center; color: var(--lilac-mute); font-style: italic; padding: 30px 0;
+  }
+
+  /* ---------- Forms / inputs ---------- */
+  .field{ margin-bottom: 18px; text-align:left; }
+  .field label{
+    display:block; margin-bottom: 6px;
+    font-family:'Cormorant Garamond', serif; font-style: italic;
+    font-size: 0.85rem; color: var(--lilac-mute);
+  }
+  input[type=text], input[type=password], textarea, select{
+    width: 100%;
+    background: var(--bg-deep);
+    border: 1px solid var(--hairline);
+    color: var(--bone);
+    padding: 11px 13px;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.98rem;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  input::placeholder, textarea::placeholder{ color: rgba(196,179,218,0.4); }
+  input:focus, textarea:focus, select:focus{
+    border-color: var(--purple-bright);
+    box-shadow: 0 0 0 3px rgba(139,79,214,0.18);
+  }
+  textarea{ resize: vertical; min-height: 90px; font-family:'Cormorant Garamond', serif; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background: linear-gradient(160deg, var(--purple-royal), #432472);
+    color: var(--bone);
+    border: 1px solid rgba(166,115,232,0.4);
+    padding: 11px 26px;
+    font-family:'Cormorant Garamond', serif;
+    font-size: 0.95rem; letter-spacing: 0.06em;
+    border-radius: 3px;
+    cursor:pointer;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+  }
+  .btn:hover{ transform: translateY(-1px); box-shadow: 0 8px 24px rgba(91,42,140,0.4); }
+  .btn:active{ transform: translateY(0); }
+  .btn.full{ width:100%; }
+  .btn.ghost{
+    background: transparent; border: 1px solid var(--hairline); color: var(--bone-dim);
+  }
+  .btn.ghost:hover{ border-color: var(--purple-bright); color: var(--bone); }
+  .btn.danger{
+    background: linear-gradient(160deg, var(--plum-bright), #4a1530);
+    border-color: rgba(156,47,87,0.5);
+  }
+  .btn.small{ padding: 7px 16px; font-size: 0.82rem; }
+
+  .form-msg{
+    font-size: 0.85rem; margin-top: 10px; min-height: 1.2em;
+    font-family:'Cormorant Garamond', serif; font-style: italic;
+  }
+  .form-msg.error{ color: var(--plum-bright); }
+  .form-msg.ok{ color: #8fd6a8; }
+
+  /* ---------- Footer ---------- */
+  footer{
+    text-align:center;
+    padding: 50px 6vw 36px;
+    border-top: 1px solid var(--hairline);
+  }
+  footer .fb-link{
+    display:inline-flex; align-items:center; gap:8px;
+    color: var(--bone-dim); font-family:'Cormorant Garamond', serif; font-style:italic;
+    margin-bottom: 16px;
+  }
+  footer .fb-link:hover{ color: var(--purple-glow); }
+  footer .fine{ color: var(--lilac-mute); font-size: 0.8rem; margin-top: 14px; }
+
+  /* ---------- Misc ---------- */
+  .reveal{ opacity:0; transform: translateY(18px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.in{ opacity:1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; }
+  }
+
+  @media (max-width: 760px){
+    .nav-links{ display:none; }
+  }
+
+  .loading-spin{
+    display:inline-block; width:14px; height:14px;
+    border: 2px solid rgba(236,227,245,0.25); border-top-color: var(--bone);
+    border-radius:50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="flicker"></div>
+<div class="vignette"></div>
+
+<nav>
+  <div class="brand" onclick="scrollToId('home')">
+    <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 2 L36 11 V29 L20 38 L4 29 V11 Z" stroke="#a673e8" stroke-width="1.4"/>
+      <path d="M20 9 L29 14 V26 L20 31 L11 26 V14 Z" stroke="#8b4fd6" stroke-width="1"/>
+      <circle cx="20" cy="20" r="3" fill="#a673e8"/>
+    </svg>
+    <div class="brand-text">WISTERIA<span class="sub">12 &middot; STEM WISE</span></div>
+  </div>
+  <div class="nav-links">
+    <a href="#officers">Officers</a>
+    <a href="#students">Students</a>
+    <a href="#wall">The Wall</a>
+    <a href="admin.html" id="adminNavLink">Admin</a>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="eyebrow">Section 12 &middot; STEM &middot; Strand WISE</div>
+    <h1>WIST<span class="accent">E</span>RIA</h1>
+    <p class="motto">"Not just smart — <span class="display-script">WISE</span>." Rooted together, we grow toward the light, one equation, one experiment, one quiet act of brilliance at a time.</p>
+    <div class="section-name">GRADE 12 &mdash; STEM WISE</div>
+    <div class="scroll-cue"></div>
+  </section>
+
+  <!-- OFFICERS -->
+  <section class="block" id="officers">
+    <div class="block-head reveal">
+      <div class="eyebrow">Meet the</div>
+      <h2>Officers</h2>
+      <div class="ornament"><span class="line"></span><svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 0 L10 6 L16 8 L10 10 L8 16 L6 10 L0 8 L6 6 Z" fill="#8b4fd6"/></svg><span class="line right"></span></div>
+      <p>The hands that hold the class together — chosen, trusted, and a little bit feared during deadlines.</p>
+    </div>
+    <div class="grid" id="officersGrid"></div>
+  </section>
+
+  <!-- STUDENTS -->
+  <section class="block" id="students">
+    <div class="block-head reveal">
+      <div class="eyebrow">The</div>
+      <h2>Students of Wisteria</h2>
+      <div class="ornament"><span class="line"></span><svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 0 L10 6 L16 8 L10 10 L8 16 L6 10 L0 8 L6 6 Z" fill="#8b4fd6"/></svg><span class="line right"></span></div>
+      <p>Every vine in this section, growing in its own direction.</p>
+    </div>
+    <div class="grid" id="studentsGrid"></div>
+  </section>
+
+  <!-- WALL -->
+  <section class="block" id="wall">
+    <div class="block-head reveal">
+      <div class="eyebrow">Speak freely, stay unseen</div>
+      <h2>The Anonymous Wall</h2>
+      <div class="ornament"><span class="line"></span><svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 0 L10 6 L16 8 L10 10 L8 16 L6 10 L0 8 L6 6 Z" fill="#8b4fd6"/></svg><span class="line right"></span></div>
+      <p class="wall-intro">Confessions, gratitude, inside jokes, unfinished thoughts. Enter the wall's password to post — no name required, no name shown.</p>
+    </div>
+
+    <div class="wall-gate" id="wallGate">
+      <h3>Enter to post</h3>
+      <div class="field">
+        <label for="wallPassInput">Wall password</label>
+        <input type="password" id="wallPassInput" placeholder="••••••••">
+      </div>
+      <textarea id="wallMsgInput" placeholder="Say something you mean..."></textarea>
+      <div style="height:14px"></div>
+      <div class="field">
+        <label for="wallPhotoInput">Attach a photo (optional)</label>
+        <input type="file" id="wallPhotoInput" accept="image/*">
+      </div>
+      <button class="btn full" id="wallSubmitBtn" onclick="submitWallPost()">Post to the wall</button>
+      <div class="form-msg" id="wallFormMsg"></div>
+    </div>
+
+    <div class="wall-board" id="wallBoard"></div>
+  </section>
+
+</main>
+
+<footer>
+  <a class="fb-link" href="https://www.facebook.com/" target="_blank" rel="noopener" id="fbLinkFooter">Find us on Facebook &middot; STEM WISTERIA</a>
+  <div class="ornament"><span class="line"></span><svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 0 L10 6 L16 8 L10 10 L8 16 L6 10 L0 8 L6 6 Z" fill="#5b2a8c"/></svg><span class="line right"></span></div>
+  <div class="fine">Grade 12 &mdash; STEM WISE &middot; Wisteria, est. this school year</div>
+  <a href="admin.html" style="display:block; margin-top:14px; font-size:0.75rem; color:var(--lilac-mute); opacity:0.7;">Admin</a>
+</footer>
+
+<!-- FIREBASE SETUP NOTICE (shown only if config is missing) -->
+<div class="modal-overlay" id="setupModal">
+  <div class="modal-box" style="max-width:520px;">
+    <h3>One-time setup needed</h3>
+    <p class="modal-sub">This site needs a free Firebase project to save data. Paste your config below to connect for this session — to make it permanent (e.g. before hosting on GitHub Pages), paste the same config directly into the file's FIREBASE_CONFIG line.</p>
+    <div class="field">
+      <label for="setupConfigInput">Paste your Firebase config object</label>
+      <textarea id="setupConfigInput" style="min-height:140px; font-family:monospace; font-size:0.85rem;" placeholder='{
+  "apiKey": "...",
+  "authDomain": "...",
+  "projectId": "...",
+  "storageBucket": "...",
+  "messagingSenderId": "...",
+  "appId": "..."
+}'></textarea>
+    </div>
+    <button class="btn full" onclick="applySetupConfig()">Save & continue</button>
+    <div class="form-msg" id="setupFormMsg"></div>
+    <p style="font-size:0.75rem; color:var(--lilac-mute); margin-top:14px;">See the setup guide that came with this file for where to find this in your Firebase console.</p>
+  </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+/* ============================================================
+   FIREBASE CONFIG
+   Paste your Firebase project's config object here, replacing
+   the null below. Example:
+
+   const FIREBASE_CONFIG = {
+     apiKey: "AIza...",
+     authDomain: "your-project.firebaseapp.com",
+     projectId: "your-project",
+     storageBucket: "your-project.appspot.com",
+     messagingSenderId: "123456789",
+     appId: "1:123456789:web:abcdef"
+   };
+
+   If left as null, the site will show a one-time setup screen
+   where you can paste your config in to test the connection.
+   That only lasts for your current browser session — for the
+   config to stick permanently (e.g. once hosted on GitHub Pages),
+   paste it directly into this file in place of "null" below,
+   before you push it.
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDnYcZjkDhBbjyfNLEeR4DLyjOl5KjUVWg",
+  authDomain: "wisteria-e91d6.firebaseapp.com",
+  projectId: "wisteria-e91d6",
+  storageBucket: "wisteria-e91d6.firebasestorage.app",
+  messagingSenderId: "137509727049",
+  appId: "1:137509727049:web:ae2753de85baf93b41c898"
+};
+
+/* ============================================================ */
+
+let db = null;
+let state = {
+  officers: [],
+  students: [],
+  wall: [],
+  wallPassword: 'wisterai0607'
+};
+
+let activeConfig = FIREBASE_CONFIG;
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function initials(name){
+  return name.split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');
+}
+
+/* ---------- Firebase bootstrap ---------- */
+function initFirebase(config){
+  try{
+    if(!firebase.apps.length){
+      firebase.initializeApp(config);
+    }
+    db = firebase.firestore();
+    return true;
+  }catch(e){
+    console.error('Firebase init failed', e);
+    return false;
+  }
+}
+
+function showSetupModal(){
+  document.getElementById('setupModal').classList.add('show');
+}
+function hideSetupModal(){
+  document.getElementById('setupModal').classList.remove('show');
+}
+
+function applySetupConfig(){
+  const raw = document.getElementById('setupConfigInput').value.trim();
+  const msgEl = document.getElementById('setupFormMsg');
+  if(!raw){
+    msgEl.className = 'form-msg error';
+    msgEl.textContent = 'Paste your Firebase config object first.';
+    return;
+  }
+  let parsed;
+  try{
+    parsed = JSON.parse(raw);
+  }catch(e){
+    msgEl.className = 'form-msg error';
+    msgEl.textContent = 'That doesn\'t look like valid JSON. Copy the config object exactly as Firebase gives it to you (with quotes around keys).';
+    return;
+  }
+  if(!parsed.apiKey || !parsed.projectId){
+    msgEl.className = 'form-msg error';
+    msgEl.textContent = 'That config is missing required fields (apiKey, projectId). Double check you copied the whole object.';
+    return;
+  }
+  const ok = initFirebase(parsed);
+  if(!ok){
+    msgEl.className = 'form-msg error';
+    msgEl.textContent = 'Firebase could not start with that config. Check it and try again.';
+    return;
+  }
+  activeConfig = parsed;
+  msgEl.className = 'form-msg ok';
+  msgEl.textContent = 'Connected! Loading your site...';
+  setTimeout(() => {
+    hideSetupModal();
+    loadAll();
+  }, 500);
+}
+
+/* ---------- Firestore helpers ---------- */
+async function fsGetDoc(collection, id){
+  const snap = await db.collection(collection).doc(id).get();
+  return snap.exists ? snap.data() : null;
+}
+async function fsSetDoc(collection, id, data){
+  await db.collection(collection).doc(id).set(data);
+}
+async function fsGetCollection(collection){
+  const snap = await db.collection(collection).get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+async function fsAddDoc(collection, id, data){
+  await db.collection(collection).doc(id).set(data);
+}
+async function fsDeleteDoc(collection, id){
+  await db.collection(collection).doc(id).delete();
+}
+
+/* ---------- Load everything ---------- */
+async function loadAll(){
+  if(!db){ return; }
+  try{
+    state.officers = await fsGetCollection('officers');
+  }catch(e){ console.error(e); state.officers = []; }
+
+  try{
+    state.students = await fsGetCollection('students');
+  }catch(e){ console.error(e); state.students = []; }
+
+  try{
+    state.wall = await fsGetCollection('wallposts');
+  }catch(e){ console.error(e); state.wall = []; }
+
+  try{
+    const settings = await fsGetDoc('settings', 'main');
+    if(settings && settings.wallPassword){
+      state.wallPassword = settings.wallPassword;
+    }
+  }catch(e){ console.error(e); }
+
+  renderOfficers();
+  renderStudents();
+  renderWall();
+}
+
+/* ---------- Rendering: Officers & Students ---------- */
+function personCardHtml(p){
+  const photo = p.photo
+    ? `<img src="${p.photo}" alt="${escapeHtml(p.name)}">`
+    : `<span class="placeholder">${escapeHtml(initials(p.name))}</span>`;
+  return `
+    <div class="card person-card reveal in">
+      <div class="person-photo">${photo}</div>
+      <div class="person-name">${escapeHtml(p.name)}</div>
+      ${p.role ? `<div class="person-role">${escapeHtml(p.role)}</div>` : ''}
+      ${p.fact ? `<div class="person-fact">${escapeHtml(p.fact)}</div>` : ''}
+    </div>
+  `;
+}
+
+function renderOfficers(){
+  const grid = document.getElementById('officersGrid');
+  if(state.officers.length === 0){
+    grid.innerHTML = `<div class="wall-empty" style="grid-column:1/-1;">No officers have been added yet.</div>`;
+    return;
+  }
+  grid.innerHTML = state.officers.map(personCardHtml).join('');
+}
+
+function renderStudents(){
+  const grid = document.getElementById('studentsGrid');
+  if(state.students.length === 0){
+    grid.innerHTML = `<div class="wall-empty" style="grid-column:1/-1;">No students have been added yet.</div>`;
+    return;
+  }
+  grid.innerHTML = state.students.map(personCardHtml).join('');
+}
+
+/* ---------- Rendering: Wall ---------- */
+function renderWall(){
+  const board = document.getElementById('wallBoard');
+  if(state.wall.length === 0){
+    board.innerHTML = `<div class="wall-empty" style="grid-column:1/-1;">The wall is silent... for now.</div>`;
+    return;
+  }
+  const sorted = [...state.wall].sort((a,b) => b.time - a.time);
+  board.innerHTML = sorted.map(post => `
+    <div class="wall-note">
+      ${post.msg ? `<div class="msg">${escapeHtml(post.msg)}</div>` : ''}
+      ${post.photo ? `<div class="photo"><img src="${post.photo}" alt="Wall post photo"></div>` : ''}
+      <div class="meta">${new Date(post.time).toLocaleDateString(undefined,{month:'short', day:'numeric', year:'numeric'})}</div>
+    </div>
+  `).join('');
+}
+
+/* ---------- Wall posting ---------- */
+async function submitWallPost(){
+  const passInput = document.getElementById('wallPassInput');
+  const msgInput = document.getElementById('wallMsgInput');
+  const photoInput = document.getElementById('wallPhotoInput');
+  const msgEl = document.getElementById('wallFormMsg');
+  const btn = document.getElementById('wallSubmitBtn');
+
+  const pass = passInput.value;
+  const msg = msgInput.value.trim();
+  const hasPhoto = photoInput.files && photoInput.files[0];
+
+  msgEl.className = 'form-msg';
+  msgEl.textContent = '';
+
+  if(!pass){
+    msgEl.className = 'form-msg error';
+    msgEl.textContent = 'Enter the wall password first.';
+    return;
+  }
+  if(pass !== state.wallPassword){
+    msgEl.className = 'form-msg error';
+    msgEl.textContent = 'Wrong password.';
+    return;
+  }
+  if(!msg && !hasPhoto){
+    msgEl.className = 'form-msg error';
+    msgEl.textContent = 'Write something or attach a photo before posting.';
+    return;
+  }
+
+  btn.disabled = true;
+  const origText = btn.textContent;
+  btn.innerHTML = '<span class="loading-spin"></span>';
+
+  try{
+    let photo = null;
+    if(hasPhoto){
+      photo = await fileToCompressedDataUrl(photoInput.files[0]);
+    }
+    const id = 'p' + Date.now() + Math.random().toString(36).slice(2,7);
+    const post = { msg, photo, time: Date.now() };
+    await fsAddDoc('wallposts', id, post);
+    state.wall.push({ id, ...post });
+    renderWall();
+    msgInput.value = '';
+    photoInput.value = '';
+    msgEl.className = 'form-msg ok';
+    msgEl.textContent = 'Posted anonymously.';
+  }catch(e){
+    console.error(e);
+    msgEl.className = 'form-msg error';
+    msgEl.textContent = 'Something went wrong saving your post. Try a smaller photo or check your connection.';
+  }finally{
+    btn.disabled = false;
+    btn.textContent = origText;
+  }
+}
+
+/* ---------- Utility ---------- */
+function scrollToId(id){
+  document.getElementById(id).scrollIntoView({behavior:'smooth'});
+}
+
+/* ---------- Reveal-on-scroll ---------- */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.classList.add('in');
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ---------- Init ---------- */
+(function start(){
+  if(activeConfig){
+    const ok = initFirebase(activeConfig);
+    if(ok){
+      loadAll();
+    } else {
+      showSetupModal();
+    }
+  } else {
+    showSetupModal();
+  }
+})();
+</script>
+
+</body>
+</html>
